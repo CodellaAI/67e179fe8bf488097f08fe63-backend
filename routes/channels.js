@@ -2,6 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const { body, validationResult } = require('express-validator');
+const mongoose = require('mongoose');
 const Channel = require('../models/Channel');
 const Guild = require('../models/Guild');
 const Message = require('../models/Message');
@@ -10,6 +11,11 @@ const { authenticate } = require('../middleware/auth');
 // Get channel by ID
 router.get('/:id', authenticate, async (req, res) => {
   try {
+    // Validate if id is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid channel ID format' });
+    }
+    
     const channel = await Channel.findById(req.params.id).populate('guild', 'name icon');
     
     if (!channel) {
@@ -66,6 +72,11 @@ router.put(
       const { name, topic, category } = req.body;
       const channelId = req.params.id;
 
+      // Validate if id is a valid ObjectId
+      if (!mongoose.Types.ObjectId.isValid(channelId)) {
+        return res.status(400).json({ message: 'Invalid channel ID format' });
+      }
+
       // Find the channel
       let channel = await Channel.findById(channelId);
       
@@ -121,6 +132,11 @@ router.put(
 router.delete('/:id', authenticate, async (req, res) => {
   try {
     const channelId = req.params.id;
+
+    // Validate if id is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(channelId)) {
+      return res.status(400).json({ message: 'Invalid channel ID format' });
+    }
 
     // Find the channel
     const channel = await Channel.findById(channelId);
@@ -179,6 +195,16 @@ router.get('/:id/messages', authenticate, async (req, res) => {
     const limit = parseInt(req.query.limit) || 50;
     const before = req.query.before;
 
+    // Validate if id is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(channelId)) {
+      return res.status(400).json({ message: 'Invalid channel ID format' });
+    }
+
+    // Validate if before is a valid ObjectId if provided
+    if (before && !mongoose.Types.ObjectId.isValid(before)) {
+      return res.status(400).json({ message: 'Invalid message ID format in before parameter' });
+    }
+
     // Find the channel
     const channel = await Channel.findById(channelId);
     
@@ -236,6 +262,11 @@ router.post(
       const { content } = req.body;
       const channelId = req.params.id;
       const userId = req.user._id;
+
+      // Validate if id is a valid ObjectId
+      if (!mongoose.Types.ObjectId.isValid(channelId)) {
+        return res.status(400).json({ message: 'Invalid channel ID format' });
+      }
 
       // Find the channel
       const channel = await Channel.findById(channelId);

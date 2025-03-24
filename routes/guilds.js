@@ -2,6 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const { body, validationResult } = require('express-validator');
+const mongoose = require('mongoose');
 const Guild = require('../models/Guild');
 const Channel = require('../models/Channel');
 const User = require('../models/User');
@@ -78,6 +79,11 @@ router.post(
 // Get guild by ID
 router.get('/:id', authenticate, async (req, res) => {
   try {
+    // Validate if id is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid guild ID format' });
+    }
+    
     const guild = await Guild.findById(req.params.id)
       .populate('owner', 'username avatar')
       .populate('members', 'username avatar status');
@@ -122,6 +128,11 @@ router.put(
       const { name } = req.body;
       const guildId = req.params.id;
 
+      // Validate if id is a valid ObjectId
+      if (!mongoose.Types.ObjectId.isValid(guildId)) {
+        return res.status(400).json({ message: 'Invalid guild ID format' });
+      }
+
       // Find the guild
       let guild = await Guild.findById(guildId);
       
@@ -162,6 +173,11 @@ router.delete('/:id', authenticate, async (req, res) => {
   try {
     const guildId = req.params.id;
 
+    // Validate if id is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(guildId)) {
+      return res.status(400).json({ message: 'Invalid guild ID format' });
+    }
+
     // Find the guild
     const guild = await Guild.findById(guildId);
     
@@ -195,6 +211,11 @@ router.delete('/:id', authenticate, async (req, res) => {
 router.get('/:id/channels', authenticate, async (req, res) => {
   try {
     const guildId = req.params.id;
+
+    // Validate if id is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(guildId)) {
+      return res.status(400).json({ message: 'Invalid guild ID format' });
+    }
 
     // Find the guild
     const guild = await Guild.findById(guildId);
@@ -256,6 +277,11 @@ router.post(
       const { name, topic, type = 'text', category = 'general' } = req.body;
       const guildId = req.params.id;
 
+      // Validate if id is a valid ObjectId
+      if (!mongoose.Types.ObjectId.isValid(guildId)) {
+        return res.status(400).json({ message: 'Invalid guild ID format' });
+      }
+
       // Find the guild
       const guild = await Guild.findById(guildId);
       
@@ -307,6 +333,11 @@ router.get('/:id/members', authenticate, async (req, res) => {
   try {
     const guildId = req.params.id;
 
+    // Validate if id is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(guildId)) {
+      return res.status(400).json({ message: 'Invalid guild ID format' });
+    }
+
     // Find the guild
     const guild = await Guild.findById(guildId).populate('members', 'username avatar status');
     
@@ -330,6 +361,11 @@ router.get('/:id/members', authenticate, async (req, res) => {
 router.delete('/:id/members/:userId', authenticate, async (req, res) => {
   try {
     const { id: guildId, userId } = req.params;
+
+    // Validate if ids are valid ObjectIds
+    if (!mongoose.Types.ObjectId.isValid(guildId) || !mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ message: 'Invalid ID format' });
+    }
 
     // Find the guild
     const guild = await Guild.findById(guildId);
@@ -412,6 +448,11 @@ router.post(
 
       const { name, color, permissions = [] } = req.body;
       const guildId = req.params.id;
+
+      // Validate if id is a valid ObjectId
+      if (!mongoose.Types.ObjectId.isValid(guildId)) {
+        return res.status(400).json({ message: 'Invalid guild ID format' });
+      }
 
       // Find the guild
       const guild = await Guild.findById(guildId);
