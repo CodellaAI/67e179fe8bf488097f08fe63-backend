@@ -26,7 +26,7 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
-    origin: process.env.CLIENT_URL || 'http://localhost:3000',
+    origin: 'https://frontend-67e179fe8bf488097f08fe63.apps.durnode.com',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true
   }
@@ -39,7 +39,7 @@ mongoose.connect(process.env.MONGODB_URI)
 
 // Middleware
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  origin: 'https://frontend-67e179fe8bf488097f08fe63.apps.durnode.com',
   credentials: true
 }));
 app.use(express.json());
