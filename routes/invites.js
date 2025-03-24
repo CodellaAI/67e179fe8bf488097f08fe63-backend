@@ -59,6 +59,46 @@ router.post(
   }
 );
 
+// Get invite details by code
+router.get('/:code/details', async (req, res) => {
+  try {
+    const { code } = req.params;
+    
+    // Find the invite
+    const invite = await Invite.findOne({ code }).populate('guild', 'name icon members');
+    
+    if (!invite) {
+      return res.status(404).json({ message: 'Invalid invite code' });
+    }
+    
+    // Check if invite is expired
+    if (invite.isExpired()) {
+      return res.status(400).json({ message: 'Invite has expired' });
+    }
+    
+    // Check if invite has reached max uses
+    if (invite.isMaxUsesReached()) {
+      return res.status(400).json({ message: 'Invite has reached maximum uses' });
+    }
+    
+    // Return guild info
+    const guild = invite.guild;
+    const memberCount = guild.members.length;
+    
+    res.json({
+      guild: {
+        _id: guild._id,
+        name: guild.name,
+        icon: guild.icon,
+        memberCount
+      }
+    });
+  } catch (error) {
+    console.error('Get invite details error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // Get all invites for a guild
 router.get('/guilds/:guildId', authenticate, async (req, res) => {
   try {
